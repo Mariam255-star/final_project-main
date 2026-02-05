@@ -1,18 +1,12 @@
-import 'package:final_project/core/constants/app_color.dart';
-import 'package:final_project/core/utils/text_style.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:final_project/core/constants/app_color.dart';
+import 'package:final_project/core/utils/text_style.dart';
+import 'package:final_project/models/product_model.dart';
+import 'package:final_project/services/product_services.dart';
 
 class SkinCareScreen extends StatelessWidget {
   const SkinCareScreen({super.key});
-
-  final List<String> productImages = const [
-    'assets/medicines/bottle.png',
-    'assets/medicines/cream_1.png',
-    'assets/medicines/cream_2.jpg',
-    'assets/medicines/skincare.png',
-    'assets/medicines/download (7).jpg',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -28,21 +22,19 @@ class SkinCareScreen extends StatelessWidget {
           onPressed: () => context.go('/home'),
         ),
         title: Text(
-          'Skin Care',
+          'Products',
           style: TextStyles.subtitle(color: AppColor.whiteColor),
         ),
       ),
 
-      /// 🟢 Body
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            /// 🔍 Search
+            /// 🔍 Search (UI بس)
             TextField(
               decoration: InputDecoration(
                 hintText: 'Search',
-                hintStyle: TextStyles.caption(color: Colors.grey),
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: const Icon(Icons.filter_list),
                 filled: true,
@@ -56,39 +48,77 @@ class SkinCareScreen extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            /// 📦 Products List
+            /// 📦 Products from API
             Expanded(
-              child: ListView.builder(
-                itemCount: productImages.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      context.push('/product-details');
-                    },
-                    child: Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: ListTile(
-                        leading: Image.asset(
-                          productImages[index],
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.contain,
-                        ),
-                        title: Text(
-                          'Skin Product',
-                          style: TextStyles.bodyLarge(
-                            color: AppColor.secondaryColor,
+              child: FutureBuilder<List<Product>>(
+                future: ProductService.getProducts(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return const Center(
+                      child: Text("حدث خطأ في تحميل البيانات"),
+                    );
+                  }
+
+                  final products = snapshot.data ?? [];
+
+                  if (products.isEmpty) {
+                    return const Center(child: Text("لا يوجد منتجات"));
+                  }
+
+                  return ListView.builder(
+                    itemCount: products.length,
+                    itemBuilder: (context, index) {
+                      final product = products[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          context.push(
+                            '/product-details',
+                            extra: product,
+                          );
+                        },
+                        child: Card(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: ListTile(
+                            leading: Image.network(
+                              product.image,
+                              width: 50,
+                              height: 50,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return const Icon(
+                                  Icons.image_not_supported,
+                                  size: 40,
+                                );
+                              },
+                            ),
+                            title: Text(
+                              product.name,
+                              style: TextStyles.bodyLarge(
+                                color: AppColor.secondaryColor,
+                              ),
+                            ),
+                            subtitle: Text(
+                              "${product.brand} • ⭐ ${product.rating}",
+                              style: TextStyles.caption(color: Colors.grey),
+                            ),
+                            trailing: Text(
+                              "${product.price} EGP",
+                              style: TextStyles.bodyLarge(
+                                color: AppColor.primaryColor,
+                              ),
+                            ),
                           ),
                         ),
-                        subtitle: Text(
-                          '4.6 ⭐ (320 Reviews)',
-                          style: TextStyles.caption(color: Colors.grey),
-                        ),
-                      ),
-                    ),
+                      );
+                    },
                   );
                 },
               ),
