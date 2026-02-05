@@ -8,19 +8,20 @@ import 'package:go_router/go_router.dart';
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  /// 🔹 Get First Name from Firestore
-  Future<String> _getFirstName() async {
+  Stream<String> _getFirstNameStream() {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return 'User';
+    if (user == null) {
+      return Stream.value('User');
+    }
 
-    final doc = await FirebaseFirestore.instance
+    return FirebaseFirestore.instance
         .collection('users')
         .doc(user.uid)
-        .get();
-
-    if (!doc.exists) return 'User';
-
-    return doc.data()?['firstName'] ?? 'User';
+        .snapshots()
+        .map((doc) {
+          if (!doc.exists) return 'User';
+          return doc.data()?['firstName'] ?? 'User';
+        });
   }
 
   @override
@@ -40,12 +41,12 @@ class HomePage extends StatelessWidget {
                 bottomRight: Radius.circular(30),
               ),
             ),
-            child: FutureBuilder<String>(
-              future: _getFirstName(),
+            child: StreamBuilder<String>(
+              stream: _getFirstNameStream(),
               builder: (context, snapshot) {
-                final name = snapshot.connectionState == ConnectionState.done
+                final name = snapshot.connectionState == ConnectionState.active
                     ? snapshot.data ?? 'User'
-                    : '...';
+                    : 'User';
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,8 +87,7 @@ class HomePage extends StatelessWidget {
                       },
                       child: Container(
                         height: 50,
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 16),
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
                         decoration: BoxDecoration(
                           color: AppColor.whiteColor,
                           borderRadius: BorderRadius.circular(30),
@@ -97,8 +97,7 @@ class HomePage extends StatelessWidget {
                             Expanded(
                               child: Text(
                                 "Upload your Prescription",
-                                style:
-                                    TextStyles.body(color: Colors.grey),
+                                style: TextStyles.body(color: Colors.grey),
                               ),
                             ),
                             Image.asset(
@@ -273,8 +272,7 @@ class HomePage extends StatelessWidget {
           ),
           const Spacer(),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: AppColor.primaryColor,
               borderRadius: BorderRadius.circular(12),

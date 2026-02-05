@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:final_project/features/auth/forgetpassword_screen.dart';
 import 'package:final_project/features/auth/login_screen.dart';
 import 'package:final_project/features/auth/register_screen.dart';
@@ -13,6 +14,7 @@ import 'package:final_project/features/home/categories/skin_care_screen.dart';
 import 'package:final_project/features/home/home_screen.dart';
 import 'package:final_project/features/home/prescription/prescription_items_screen.dart';
 import 'package:final_project/features/home/prescription/scan_prescription_screen.dart';
+import 'package:final_project/models/product_model.dart';
 import 'package:final_project/features/home/product/product_details_screen.dart';
 import 'package:final_project/features/notification/notification_screen.dart';
 import 'package:final_project/features/profile/edit_profile_page.dart';
@@ -126,7 +128,13 @@ final GoRouter appRouter = GoRouter(
 
     GoRoute(
       path: '/product-details',
-      builder: (context, state) => const ProductDetailsScreen(),
+      builder: (context, state) {
+        final product = state.extra as Product?;
+        if (product == null) {
+          return const Scaffold(body: Center(child: Text('Product not found')));
+        }
+        return ProductDetailsScreen(product: product);
+      },
     ),
 
     GoRoute(

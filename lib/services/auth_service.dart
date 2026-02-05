@@ -14,8 +14,7 @@ class AuthService {
     String password,
   ) async {
     try {
-      final userCredential =
-          await _auth.createUserWithEmailAndPassword(
+      final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -45,8 +44,7 @@ class AuthService {
   /// 🔹 Login
   Future<User?> login(String email, String password) async {
     try {
-      final userCredential =
-          await _auth.signInWithEmailAndPassword(
+      final userCredential = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -61,9 +59,39 @@ class AuthService {
     final user = _auth.currentUser;
     if (user == null) return null;
 
-    final doc =
-        await _firestore.collection('users').doc(user.uid).get();
+    final doc = await _firestore.collection('users').doc(user.uid).get();
     return doc.data();
+  }
+
+  Future<void> updateUserProfile({
+    String? firstName,
+    String? secondname,
+    String? phoneNumber,
+    String? profileImageUrl,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null) throw Exception('User not logged in');
+
+    final updateData = <String, dynamic>{};
+
+    if (firstName != null && firstName.isNotEmpty) {
+      updateData['firstName'] = firstName;
+      await user.updateDisplayName(firstName);
+    }
+    if (secondname != null && secondname.isNotEmpty) {
+      updateData['secondname'] = secondname;
+    }
+    if (phoneNumber != null && phoneNumber.isNotEmpty) {
+      updateData['phoneNumber'] = phoneNumber;
+    }
+    if (profileImageUrl != null && profileImageUrl.isNotEmpty) {
+      updateData['profileImageUrl'] = profileImageUrl;
+    }
+
+    if (updateData.isNotEmpty) {
+      await _firestore.collection('users').doc(user.uid).update(updateData);
+      await user.reload();
+    }
   }
 
   /// 🔹 Logout
