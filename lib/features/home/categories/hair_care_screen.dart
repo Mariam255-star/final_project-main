@@ -25,7 +25,10 @@ class HairCareScreen extends StatelessWidget {
               ),
               SafeArea(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 10,
+                  ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -39,7 +42,10 @@ class HairCareScreen extends StatelessWidget {
                       ),
                       InkWell(
                         onTap: () => context.go('/notifications'),
-                        child: const Icon(Icons.notifications_none, color: Colors.white),
+                        child: const Icon(
+                          Icons.notifications_none,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
@@ -77,12 +83,17 @@ class HairCareScreen extends StatelessWidget {
                     child: FutureBuilder<List<Product>>(
                       future: ProductService.getProducts(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return const Center(child: CircularProgressIndicator());
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         }
 
                         if (snapshot.hasError) {
-                          return Center(child: Text("Error: ${snapshot.error}"));
+                          return Center(
+                            child: Text("Error: ${snapshot.error}"),
+                          );
                         }
 
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -98,24 +109,30 @@ class HairCareScreen extends StatelessWidget {
                           itemCount: products.length,
                           gridDelegate:
                               const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 12,
-                            mainAxisSpacing: 12,
-                            childAspectRatio: 0.7,
-                          ),
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                childAspectRatio: 0.7,
+                              ),
                           itemBuilder: (context, index) {
                             final product = products[index];
 
                             return GestureDetector(
                               onTap: () {
-                                context.push('/product-details');
+                                context.push(
+                                  '/product-details',
+                                  extra: product,
+                                );
                               },
                               child: Container(
                                 decoration: BoxDecoration(
                                   color: AppColor.whiteColor,
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: const [
-                                    BoxShadow(color: Colors.black12, blurRadius: 6)
+                                    BoxShadow(
+                                      color: Colors.black12,
+                                      blurRadius: 6,
+                                    ),
                                   ],
                                 ),
                                 padding: const EdgeInsets.all(10),
@@ -127,9 +144,12 @@ class HairCareScreen extends StatelessWidget {
                                         child: Image.network(
                                           product.image,
                                           fit: BoxFit.contain,
-                                          errorBuilder: (context, error, stackTrace) {
-                                            return const Icon(Icons.image_not_supported);
-                                          },
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                                return const Icon(
+                                                  Icons.image_not_supported,
+                                                );
+                                              },
                                         ),
                                       ),
                                     ),
@@ -137,14 +157,17 @@ class HairCareScreen extends StatelessWidget {
                                     Text(
                                       product.name,
                                       style: TextStyles.bodyLarge(
-                                          color: AppColor.secondaryColor),
+                                        color: AppColor.secondaryColor,
+                                      ),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
                                       "${product.price} EGP ⭐ ${product.rating}",
-                                      style: TextStyles.caption(color: Colors.grey),
+                                      style: TextStyles.caption(
+                                        color: Colors.grey,
+                                      ),
                                     ),
                                   ],
                                 ),
