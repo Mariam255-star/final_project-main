@@ -1,21 +1,35 @@
 import 'package:final_project/core/constants/app_color.dart';
 import 'package:final_project/core/utils/text_style.dart';
-import 'package:final_project/core/widgets/custom_bottom_nav.dart';
+import 'package:final_project/services/pharmcy/pharmacy_service.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:final_project/models/pharmacy_model.dart';
 
-class PharmaScreen extends StatelessWidget {
+
+class PharmaScreen extends StatefulWidget {
   const PharmaScreen({super.key});
+
+  @override
+  State<PharmaScreen> createState() => _PharmaScreenState();
+}
+
+class _PharmaScreenState extends State<PharmaScreen> {
+  late Future<List<Pharmacy>> futurePharmacies;
+
+  @override
+  void initState() {
+    super.initState();
+    futurePharmacies = PharmacyService.getPharmacies();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.whiteColor,
 
-      /// 🟢 BODY
       body: Column(
         children: [
-          /// 🔹 TOP IMAGE (بدل AppBar)
+          /// 🔹 TOP IMAGE
           Stack(
             children: [
               Image.asset(
@@ -24,19 +38,14 @@ class PharmaScreen extends StatelessWidget {
                 height: 200,
                 fit: BoxFit.cover,
               ),
-
               Positioned(
                 top: 45,
                 left: 16,
                 child: IconButton(
-                  icon: const Icon(
-                    Icons.arrow_back,
-                    color: AppColor.whiteColor,
-                  ),
+                  icon: const Icon(Icons.arrow_back, color: AppColor.whiteColor),
                   onPressed: () => context.go('/home'),
                 ),
               ),
-
               Positioned(
                 top: 50,
                 left: 70,
@@ -70,38 +79,63 @@ class PharmaScreen extends StatelessWidget {
 
           const SizedBox(height: 16),
 
-          /// 🏥 Pharmacies Grid
+          /// 🏥 Pharmacies from API
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: GridView.builder(
-                itemCount: 9,
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3,
-                  crossAxisSpacing: 12,
-                  mainAxisSpacing: 12,
-                ),
-                itemBuilder: (context, index) {
-                  return Container(
-                    decoration: const BoxDecoration(
-                      color: AppColor.secondaryColor,
-                      shape: BoxShape.circle,
+            child: FutureBuilder<List<Pharmacy>>(
+              future: futurePharmacies,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                }
+
+                final pharmacies = snapshot.data!;
+
+                return Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GridView.builder(
+                    itemCount: pharmacies.length,
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                      crossAxisSpacing: 12,
+                      mainAxisSpacing: 12,
                     ),
-                    padding: const EdgeInsets.all(14),
-                    child: Image.asset(
-                      'assets/images/Elazapy.png',
-                      fit: BoxFit.contain,
-                    ),
-                  );
-                },
-              ),
+                    itemBuilder: (context, index) {
+                      final pharmacy = pharmacies[index];
+
+                      return GestureDetector(
+                        onTap: () {
+                          context.push('/pharmacy-products');
+                        },
+                        child: Container(
+                          decoration: const BoxDecoration(
+                            color: AppColor.secondaryColor,
+                            shape: BoxShape.circle,
+                          ),
+                          padding: const EdgeInsets.all(14),
+                          child: ClipOval(
+                            child: Image.network(
+                              pharmacy.image,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  const Icon(Icons.local_pharmacy,
+                                      color: Colors.white, size: 40),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
           ),
         ],
       ),
-
-      /// 🟢 Bottom Navigation (موحد)
-      // bottomNavigationBar: const CustomBottomNav(currentIndex: 1),
     );
   }
 }

@@ -22,31 +22,48 @@ class Product {
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json['id'].toString(),
-      name: json['title'] ?? json['name'] ?? '',
-      brand: json['brand'] ?? json['category'] ?? '',
+
+      // ✅ اسم المنتج (API مختلف أحيانًا)
+      name: json['name'] ?? json['title'] ?? '',
+
+      // ✅ البراند
+      brand: json['brand'] ?? '',
+
+      // ✅ الكاتيجوري
       category: json['category'] ?? '',
+
+      // ✅ السعر
       price: (json['price'] ?? 0).toDouble(),
-      rating: (json['rating'] is Map)
+
+      // ✅ الريتينج (لو رقم أو object)
+      rating: json['rating'] is Map
           ? (json['rating']['rate'] ?? 0).toDouble()
           : (json['rating'] ?? 0).toDouble(),
-      image: json['image'] ?? 'https://via.placeholder.com/150',
-      description:
-          json['description'] ??
-          _getDefaultDescription(json['category'] ?? '', json['name'] ?? ''),
+
+      // ✅ الصورة
+      image: json['image'] ??
+          'https://via.placeholder.com/150', // fallback لو مفيش صورة
+
+      // ✅ الوصف
+      description: json['description'] ??
+          _getDefaultDescription(
+            json['category'] ?? '',
+            json['name'] ?? json['title'] ?? '',
+          ),
     );
   }
 
   static String _getDefaultDescription(String category, String name) {
     final descriptions = {
       'skincare':
-          'Premium $name skincare product designed to nourish and revitalize your skin. This product is formulated with natural ingredients to provide optimal results.',
+          'Premium $name skincare product designed to nourish and revitalize your skin.',
       'haircare':
-          'Professional $name haircare product that strengthens and conditions your hair. Specially formulated to restore shine and smoothness to damaged or dull hair.',
+          'Professional $name haircare product that strengthens and conditions your hair.',
       'pharmacy':
-          'Trusted $name medication for effective relief. Consult your pharmacist or doctor for proper usage and dosage.',
+          'Trusted $name medication for effective relief. Consult your pharmacist.',
     };
 
     return descriptions[category] ??
-        'High-quality $name product designed to meet your daily needs. Experience the difference with our premium formulation.';
+        'High-quality $name product designed to meet your daily needs.';
   }
 }
