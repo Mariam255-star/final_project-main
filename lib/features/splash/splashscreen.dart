@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:final_project/services/auth_service.dart';
 
 class Splashscreen extends StatefulWidget {
   const Splashscreen({super.key});
@@ -15,7 +16,12 @@ class _SplashscreenState extends State<Splashscreen> {
     super.initState();
 
     Timer(const Duration(seconds: 6), () {
-      context.go('/welcome');
+      // 🔹 Check if user is already logged in
+      if (AuthService().currentUser != null) {
+        context.go('/home');
+      } else {
+        context.go('/welcome');
+      }
     });
   }
 
@@ -23,11 +29,7 @@ class _SplashscreenState extends State<Splashscreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Image.asset(
-          'assets/images/logo.png',
-          width: 300,
-          height: 300,
-        ),
+        child: Image.asset('assets/images/logo.png', width: 300, height: 300),
       ),
     );
   }
