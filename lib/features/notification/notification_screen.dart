@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import '../../core/constants/app_color.dart';
 import '../../core/utils/text_style.dart';
+import '../../services/notification/notification_provider.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -11,7 +13,6 @@ class NotificationScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColor.whiteColor,
 
-      /// 🟢 AppBar
       appBar: AppBar(
         backgroundColor: AppColor.whiteColor,
         elevation: 0,
@@ -26,19 +27,34 @@ class NotificationScreen extends StatelessWidget {
         centerTitle: true,
       ),
 
-      /// 🟢 Body
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: 6,
-        itemBuilder: (context, index) {
-          return _notificationCard();
+      body: Consumer<NotificationProvider>(
+        builder: (context, provider, child) {
+          final notifications = provider.notifications;
+
+          if (notifications.isEmpty) {
+            return const Center(child: Text("No notifications yet"));
+          }
+
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: notifications.length,
+            itemBuilder: (context, index) {
+              final n = notifications[index];
+
+              return _notificationCard(
+                n.title,
+                n.body,
+                n.image,
+                n.price,
+              );
+            },
+          );
         },
       ),
     );
   }
 
-  /// 🔔 Notification Card
-  Widget _notificationCard() {
+  Widget _notificationCard(String title, String body, String image, String price) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(12),
@@ -48,7 +64,6 @@ class NotificationScreen extends StatelessWidget {
       ),
       child: Row(
         children: [
-          /// 🧴 Product Image
           Container(
             height: 55,
             width: 55,
@@ -56,36 +71,27 @@ class NotificationScreen extends StatelessWidget {
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Image.asset(
-              'assets/medicines/cream_3.jpg',
-              fit: BoxFit.contain,
-            ),
+            child: Image.network(image, fit: BoxFit.cover),
           ),
 
           const SizedBox(width: 12),
 
-          /// 📝 Text Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Product Name',
+                  title,
                   style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Pharma Name : الوصف',
+                  body,
                   style: TextStyles.caption(color: Colors.grey),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Salary : 2.44\$',
-                  style: TextStyles.caption(color: Colors.grey),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Description : ....',
+                  "Price: $price EGP",
                   style: TextStyles.caption(color: Colors.grey),
                 ),
               ],

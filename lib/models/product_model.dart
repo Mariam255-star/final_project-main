@@ -21,36 +21,52 @@ class Product {
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
+     
       id: json['id'].toString(),
 
-      // ✅ اسم المنتج (API مختلف أحيانًا)
-      name: json['name'] ?? json['title'] ?? '',
+     
+      name: json['name'] ?? json['title'] ?? 'No Name',
 
-      // ✅ البراند
-      brand: json['brand'] ?? '',
+     
+      brand: json['brand'] ?? 'Unknown Brand',
 
-      // ✅ الكاتيجوري
-      category: json['category'] ?? '',
+     
+      category: json['category'] ?? 'general',
 
-      // ✅ السعر
+     
       price: (json['price'] ?? 0).toDouble(),
 
-      // ✅ الريتينج (لو رقم أو object)
+      
       rating: json['rating'] is Map
           ? (json['rating']['rate'] ?? 0).toDouble()
           : (json['rating'] ?? 0).toDouble(),
 
-      // ✅ الصورة
-      image: json['image'] ??
-          'https://via.placeholder.com/150', // fallback لو مفيش صورة
+   
+      image: _fixImageUrl(json['image']),
 
-      // ✅ الوصف
+   
       description: json['description'] ??
           _getDefaultDescription(
             json['category'] ?? '',
             json['name'] ?? json['title'] ?? '',
           ),
     );
+  }
+
+  
+  static String _fixImageUrl(String? url) {
+    if (url == null || url.isEmpty) {
+      return 'https://via.placeholder.com/150';
+    }
+
+   
+    if (!url.endsWith('.jpg') &&
+        !url.endsWith('.png') &&
+        !url.endsWith('.jpeg')) {
+      return 'https://images.unsplash.com/photo-1509042239860-f550ce710b93';
+    }
+
+    return url;
   }
 
   static String _getDefaultDescription(String category, String name) {

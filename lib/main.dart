@@ -1,11 +1,21 @@
 import 'package:final_project/core/routes/routes.dart';
+import 'package:final_project/services/notification/notification_provider.dart';
+import 'package:final_project/services/notification/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 
 void main() async {
-    WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(const MyApp());
+  await NotificationService.init();
+
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => NotificationProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
