@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/constants/app_color.dart';
 import '../../core/utils/text_style.dart';
+import '../../services/product/product_cart_service.dart';
 
-
-class OrderReviewScreen extends StatelessWidget {
+class OrderReviewScreen extends StatefulWidget {
   const OrderReviewScreen({super.key});
 
+  @override
+  State<OrderReviewScreen> createState() => _OrderReviewScreenState();
+}
+
+class _OrderReviewScreenState extends State<OrderReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return MainLayout(
@@ -46,7 +51,7 @@ class OrderReviewScreen extends StatelessWidget {
 
               const SizedBox(height: 18),
               _sectionTitle('Order details'),
-              _orderCard(),
+              _buildOrderItems(),
 
               const SizedBox(height: 18),
               _editableTile(
@@ -60,7 +65,7 @@ class OrderReviewScreen extends StatelessWidget {
               _discountCard(),
 
               const SizedBox(height: 26),
-              _totalSection(),
+              _buildTotalSection(),
 
               const SizedBox(height: 18),
               GestureDetector(
@@ -114,21 +119,45 @@ class OrderReviewScreen extends StatelessWidget {
     );
   }
 
-  // ================= Order Card =================
+  // ================= Order Items =================
 
-  Widget _orderCard() {
+  Widget _buildOrderItems() {
+    final cartItems = ProductCartService.getCartItems();
+    if (cartItems.isEmpty) {
+      return Center(child: Text('No items in cart', style: TextStyles.body()));
+    }
+
+    return Column(
+      children: cartItems.map((item) => _orderItemCard(item)).toList(),
+    );
+  }
+
+  Widget _orderItemCard(dynamic cartItem) {
+    final product = cartItem.product;
+    final quantity = cartItem.quantity;
+    final subtotal = cartItem.getSubtotal();
+
     return Container(
+      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(12),
       decoration: _box(),
       child: Row(
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
-            child: Image.asset(
-              'assets/medicines/cream_1.png',
+            child: Image.network(
+              product.image,
               height: 65,
               width: 65,
               fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return Container(
+                  height: 65,
+                  width: 65,
+                  color: Colors.grey[300],
+                  child: const Icon(Icons.image_not_supported),
+                );
+              },
             ),
           ),
           const SizedBox(width: 12),
@@ -137,23 +166,40 @@ class OrderReviewScreen extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Panadol',
-                  style: TextStyles.bodyLarge(
-                    color: AppColor.secondaryColor,
-                  ),
+                  product.name,
+                  style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Pain relief tablets',
+                  product.brand,
                   style: TextStyles.caption(color: Colors.grey),
                 ),
                 const SizedBox(height: 6),
-                Text(
-                  '\$89.99',
-                  style: TextStyles.subtitle(),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'EGP ${product.price.toStringAsFixed(2)}',
+                      style: TextStyles.subtitle(),
+                    ),
+                    Text(
+                      'x$quantity',
+                      style: TextStyles.caption(color: Colors.grey),
+                    ),
+                  ],
                 ),
               ],
             ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                'EGP ${subtotal.toStringAsFixed(2)}',
+                style: TextStyles.bodyLarge(),
+              ),
+            ],
           ),
         ],
       ),
@@ -181,10 +227,7 @@ class OrderReviewScreen extends StatelessWidget {
         children: [
           Icon(Icons.discount_outlined, color: AppColor.primaryColor),
           const SizedBox(width: 10),
-          Text(
-            'Discount code',
-            style: TextStyles.body(),
-          ),
+          Text('Discount code', style: TextStyles.body()),
         ],
       ),
     );
@@ -192,13 +235,21 @@ class OrderReviewScreen extends StatelessWidget {
 
   // ================= Total Section =================
 
-  Widget _totalSection() {
+  Widget _buildTotalSection() {
+    final cartTotal = ProductCartService.getCartTotal();
+    final shipmentCost = 9.99;
+    final totalWithShipment = cartTotal + shipmentCost;
+
     return Column(
-      children: const [
-        _PriceRow('Items value', '\$89.99'),
-        _PriceRow('Shipment', '\$1.99'),
-        Divider(),
-        _PriceRow('Total value', '\$91.98', bold: true),
+      children: [
+        _PriceRow('Items value', 'EGP ${cartTotal.toStringAsFixed(2)}'),
+        _PriceRow('Shipment', 'EGP ${shipmentCost.toStringAsFixed(2)}'),
+        const Divider(),
+        _PriceRow(
+          'Total value',
+          'EGP ${totalWithShipment.toStringAsFixed(2)}',
+          bold: true,
+        ),
       ],
     );
   }
@@ -214,10 +265,7 @@ class OrderReviewScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Center(
-        child: Text(
-          text,
-          style: TextStyles.button(color: Colors.white),
-        ),
+        child: Text(text, style: TextStyles.button(color: Colors.white)),
       ),
     );
   }
@@ -235,33 +283,24 @@ class OrderReviewScreen extends StatelessWidget {
       border: Border.all(color: Colors.grey.shade300),
       borderRadius: BorderRadius.circular(14),
       boxShadow: const [
-        BoxShadow(
-          color: Colors.black12,
-          blurRadius: 4,
-          offset: Offset(0, 2),
-        ),
+        BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
       ],
     );
   }
 
   Widget _done() => const CircleAvatar(
-        radius: 14,
-        backgroundColor: Colors.green,
-        child: Icon(Icons.check, size: 14, color: Colors.white),
-      );
+    radius: 14,
+    backgroundColor: Colors.green,
+    child: Icon(Icons.check, size: 14, color: Colors.white),
+  );
 
   Widget _active(String t) => CircleAvatar(
-        radius: 14,
-        backgroundColor: AppColor.primaryColor,
-        child: Text(
-          t,
-          style: const TextStyle(color: Colors.white),
-        ),
-      );
+    radius: 14,
+    backgroundColor: AppColor.primaryColor,
+    child: Text(t, style: const TextStyle(color: Colors.white)),
+  );
 
-  Widget _line() => Expanded(
-        child: Container(height: 1.2, color: Colors.grey),
-      );
+  Widget _line() => Expanded(child: Container(height: 1.2, color: Colors.grey));
 }
 
 // ================= Price Row =================

@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_color.dart';
 import '../../core/utils/text_style.dart';
 
+import '../../services/product/product_cart_service.dart';
+
 enum PaymentType { paypal, card, cash }
 
 class PaymentMethodScreen extends StatefulWidget {
@@ -65,7 +67,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
               ),
 
               const SizedBox(height: 22),
-              _summary(),
+              _buildSummary(),
 
               const SizedBox(height: 20),
 
@@ -175,7 +177,11 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
 
   // ================= Summary =================
 
-  Widget _summary() {
+  Widget _buildSummary() {
+    final cartTotal = ProductCartService.getCartTotal();
+    final shipmentCost = 9.99;
+    final totalWithShipment = cartTotal + shipmentCost;
+
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -183,11 +189,20 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
-        children: const [
-          _SummaryRow(title: 'Items value', value: '\$89.99'),
-          _SummaryRow(title: 'Shipment', value: '\$1.99'),
-          Divider(),
-          _SummaryRow(title: 'Total value', value: '\$91.98'),
+        children: [
+          _SummaryRow(
+            title: 'Items value',
+            value: 'EGP ${cartTotal.toStringAsFixed(2)}',
+          ),
+          _SummaryRow(
+            title: 'Shipment',
+            value: 'EGP ${shipmentCost.toStringAsFixed(2)}',
+          ),
+          const Divider(),
+          _SummaryRow(
+            title: 'Total value',
+            value: 'EGP ${totalWithShipment.toStringAsFixed(2)}',
+          ),
         ],
       ),
     );
