@@ -4,6 +4,7 @@ import 'package:final_project/core/utils/text_style.dart';
 import 'package:go_router/go_router.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:final_project/services/product/product_cart_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -59,10 +60,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CircleAvatar(
                   radius: 48,
                   backgroundColor: Colors.white,
-                  child: Image.asset(
-                    "assets/images/logo.png",
-                    width: 60,
-                  ),
+                  child: Image.asset("assets/images/logo.png", width: 60),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -82,14 +80,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-                      _textField("First Name",
-                          controller: firstNameController),
+                      _textField("First Name", controller: firstNameController),
                       const SizedBox(height: 16),
-                      _textField("Last Name",
-                          controller: lastNameController),
+                      _textField("Last Name", controller: lastNameController),
                       const SizedBox(height: 16),
-                      _textField("Email Address",
-                          controller: emailController),
+                      _textField("Email Address", controller: emailController),
                       const SizedBox(height: 16),
                       _passwordField(
                         "Password",
@@ -108,8 +103,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         obscure: obscureConfirmPassword,
                         onToggle: () {
                           setState(() {
-                            obscureConfirmPassword =
-                                !obscureConfirmPassword;
+                            obscureConfirmPassword = !obscureConfirmPassword;
                           });
                         },
                       ),
@@ -184,15 +178,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   /// ================= Widgets =================
 
-  Widget _textField(String hint,
-      {required TextEditingController controller}) {
+  Widget _textField(String hint, {required TextEditingController controller}) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         hintText: hint,
         hintStyle: TextStyles.caption(),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -224,8 +219,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
           ),
           onPressed: onToggle,
         ),
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -253,10 +250,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         onPressed: agree && !loading ? _register : null,
         child: loading
             ? const CircularProgressIndicator(color: Colors.white)
-            : Text(
-                "Sign Up",
-                style: TextStyles.button(color: Colors.white),
-              ),
+            : Text("Sign Up", style: TextStyles.button(color: Colors.white)),
       ),
     );
   }
@@ -284,16 +278,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       final auth = FirebaseAuth.instance;
       final firestore = FirebaseFirestore.instance;
 
-      final userCredential =
-          await auth.createUserWithEmailAndPassword(
+      final userCredential = await auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
-      await firestore
-          .collection('users')
-          .doc(userCredential.user!.uid)
-          .set({
+      await firestore.collection('users').doc(userCredential.user!.uid).set({
         'firstName': firstName,
         'lastName': lastNameController.text.trim(),
         'email': email,
@@ -301,7 +291,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      /// ✅ Go Home
+      /// ✅ Load user's cart from Firebase
+      await ProductCartService.initializeCartFromFirebase();
+
+      /// ✅ Navigate to home
       context.go('/home');
     } on FirebaseAuthException catch (e) {
       _showMessage(e.message ?? "Register failed");
@@ -311,8 +304,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 }

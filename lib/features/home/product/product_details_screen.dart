@@ -25,24 +25,33 @@ class _ProductDetailsScreenState extends State<ProductDetailsScreen> {
   }
 
   /// Handle add to cart action
-  void _handleAddToCart() {
+  void _handleAddToCart() async {
     try {
-      ProductCartService.addToCart(widget.product, quantity: _quantity);
+      // Add to Firebase (default) - synced across devices
+      await ProductCartService.addToCart(
+        widget.product,
+        quantity: _quantity,
+        useFirebase: true,
+      );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${widget.product.name} x$_quantity added to cart!'),
-          duration: const Duration(seconds: 2),
-          backgroundColor: AppColor.primaryColor,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${widget.product.name} x$_quantity added to cart!'),
+            duration: const Duration(seconds: 2),
+            backgroundColor: AppColor.primaryColor,
+          ),
+        );
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error adding to cart: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error adding to cart: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

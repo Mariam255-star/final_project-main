@@ -4,6 +4,7 @@ import 'package:final_project/core/utils/text_style.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:final_project/services/product/product_cart_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -47,8 +48,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      /// ✅ Success
-      context.go('/home'); // عدلي الراوت حسب مشروعك
+      /// ✅ Load user's cart from Firebase
+      await ProductCartService.initializeCartFromFirebase();
+
+      /// ✅ Success - Navigate to home
+      context.go('/home');
     } on FirebaseAuthException catch (e) {
       _showMessage(e.message ?? "Login failed");
     } finally {
@@ -59,9 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showMessage(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   @override
@@ -84,19 +86,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 CircleAvatar(
                   radius: 48,
-                  child: Image.asset(
-                    "assets/images/Group 3.png",
-                    width: 55,
-                  ),
+                  child: Image.asset("assets/images/Group 3.png", width: 55),
                 ),
 
                 const SizedBox(height: 24),
 
                 Text(
                   "Login",
-                  style: TextStyles.titleLarge(
-                    color: AppColor.secondaryColor,
-                  ),
+                  style: TextStyles.titleLarge(color: AppColor.secondaryColor),
                 ),
 
                 const SizedBox(height: 30),
@@ -105,10 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
                     children: [
-                      _textField(
-                        "Email",
-                        controller: emailController,
-                      ),
+                      _textField("Email", controller: emailController),
                       const SizedBox(height: 16),
                       _textField(
                         "Password",
@@ -126,15 +120,13 @@ class _LoginScreenState extends State<LoginScreen> {
                             child: Checkbox(
                               value: rememberMe,
                               onChanged: (value) {
-                                setState(
-                                    () => rememberMe = value ?? false);
+                                setState(() => rememberMe = value ?? false);
                               },
                               activeColor: AppColor.primaryColor,
                             ),
                           ),
                           const SizedBox(width: 6),
-                          Text("Remember Me",
-                              style: TextStyles.caption()),
+                          Text("Remember Me", style: TextStyles.caption()),
                           const Spacer(),
                           InkWell(
                             onTap: () {
@@ -234,19 +226,18 @@ class _LoginScreenState extends State<LoginScreen> {
         suffixIcon: isPassword
             ? IconButton(
                 icon: Icon(
-                  obscurePassword
-                      ? Icons.visibility_off
-                      : Icons.visibility,
+                  obscurePassword ? Icons.visibility_off : Icons.visibility,
                   size: 18,
                 ),
                 onPressed: () {
-                  setState(
-                      () => obscurePassword = !obscurePassword);
+                  setState(() => obscurePassword = !obscurePassword);
                 },
               )
             : null,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -277,10 +268,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.white,
                 strokeWidth: 2,
               )
-            : Text(
-                "Login In",
-                style: TextStyles.button(color: Colors.white),
-              ),
+            : Text("Login In", style: TextStyles.button(color: Colors.white)),
       ),
     );
   }
@@ -291,10 +279,7 @@ class _SocialIcon extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const _SocialIcon({
-    required this.icon,
-    required this.color,
-  });
+  const _SocialIcon({required this.icon, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -305,9 +290,7 @@ class _SocialIcon extends StatelessWidget {
         color: Colors.grey.shade100,
         shape: BoxShape.circle,
       ),
-      child: Center(
-        child: FaIcon(icon, size: 20, color: color),
-      ),
+      child: Center(child: FaIcon(icon, size: 20, color: color)),
     );
   }
 }
