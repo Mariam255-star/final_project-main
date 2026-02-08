@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import '../../core/constants/app_color.dart';
 import '../../core/utils/text_style.dart';
-import '../../services/notification/notification_provider.dart';
+import '../../models/notification_model.dart';
+import '../../services/notification/notification_service.dart';
 
 class NotificationScreen extends StatelessWidget {
   const NotificationScreen({super.key});
@@ -12,7 +12,6 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.whiteColor,
-
       appBar: AppBar(
         backgroundColor: AppColor.whiteColor,
         elevation: 0,
@@ -21,32 +20,59 @@ class NotificationScreen extends StatelessWidget {
           onPressed: () => context.go('/home'),
         ),
         title: Text(
-          'Notification',
+          'Notifications',
           style: TextStyles.subtitle(color: Colors.black),
         ),
         centerTitle: true,
       ),
+      body: StreamBuilder<List<AppNotification>>(
+        stream: NotificationService.getNotifications(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation(AppColor.primaryColor),
+              ),
+            );
+          }
 
-      body: Consumer<NotificationProvider>(
-        builder: (context, provider, child) {
-          final notifications = provider.notifications;
+          if (snapshot.hasError) {
+            return Center(
+              child: Text(
+                'Error loading notifications: ${snapshot.error}',
+                style: TextStyles.body(color: Colors.red),
+              ),
+            );
+          }
+
+          final notifications = snapshot.data ?? [];
 
           if (notifications.isEmpty) {
-            return const Center(child: Text("No notifications yet"));
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.notifications_off,
+                    size: 80,
+                    color: Colors.grey.shade300,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No notifications yet',
+                    style: TextStyles.subtitle(color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
           }
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: notifications.length,
             itemBuilder: (context, index) {
-              final n = notifications[index];
-
-              return _notificationCard(
-                n.title,
-                n.body,
-                n.image,
-                n.price,
-              );
+              final notification = notifications[index];
+              return _notificationCard(context, notification);
             },
           );
         },
@@ -54,51 +80,94 @@ class NotificationScreen extends StatelessWidget {
     );
   }
 
-  Widget _notificationCard(String title, String body, String image, String price) {
-    return Container(
+  Widget _notificationCard(BuildContext context, AppNotification notification) {
+    final isOrderNotification = notification.type == 'order_confirmed';
+    final backgroundColor = isOrderNotification
+        ? Colors.green.shade50
+        : Colors.blue.shade50;
+    final iconColor = isOrderNotification ? Colors.green : Colors.blue;
+
+    return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xffCFF0EA),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 55,
-            width: 55,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      child: Container(
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ListTile(
+          leading: Container(
+            width: 50,
+            height: 50,
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
             ),
-            child: Image.network(image, fit: BoxFit.cover),
-          ),
-
-          const SizedBox(width: 12),
-
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  body,
-                  style: TextStyles.caption(color: Colors.grey),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  "Price: $price EGP",
-                  style: TextStyles.caption(color: Colors.grey),
-                ),
-              ],
+            child: Icon(
+              isOrderNotification ? Icons.check_circle : Icons.notifications,
+              color: iconColor,
+              size: 28,
             ),
           ),
-        ],
+          title: Text(
+            notification.title,
+            style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 4),
+              Text(
+                notification.body,
+                style: TextStyles.caption(color: Colors.grey),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _formatTime(notification.createdAt),
+                style: TextStyles.caption(color: Colors.grey.shade600),
+              ),
+            ],
+          ),
+          trailing: PopupMenuButton(
+            onSelected: (value) {
+              if (value == 'delete') {
+                NotificationService.deleteNotification(notification.id);
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'delete',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text('Delete'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inMinutes < 1) {
+      return 'Just now';
+    } else if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}m ago';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}d ago';
+    } else {
+      return '${dateTime.day}/${dateTime.month}/${dateTime.year}';
+    }
   }
 }

@@ -38,7 +38,7 @@ class _CartItemsScreenState extends State<CartItemsScreen> {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/home'),
         ),
         title: Text(
           'Cart Items (${cartItems.length})',

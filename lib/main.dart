@@ -10,12 +10,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
+  await NotificationService.init();
+
   await ProductCartService.initializeCartFromFirebase().catchError((_) {
     return ProductCartService.initializeCartFromLocal();
   });
-
-  runApp(const MyApp());
-  await NotificationService.init();
 
   runApp(
     ChangeNotifierProvider(
