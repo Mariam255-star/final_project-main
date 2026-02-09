@@ -109,7 +109,13 @@ class _PharmaScreenState extends State<PharmaScreen> {
 
                       return GestureDetector(
                         onTap: () {
-                          context.push('/pharmacy-products');
+                          {
+                       context.push(
+                      '/pharmacy-details',
+                      extra: pharmacy,
+                  );
+                };
+
                         },
                         child: Container(
                           decoration: const BoxDecoration(

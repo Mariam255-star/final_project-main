@@ -1,3 +1,5 @@
+import 'package:final_project/features/home/pharmcy/pharmacy_details_screen.dart';
+import 'package:final_project/models/pharmacy_model.dart';
 import 'package:flutter/material.dart';
 import 'package:final_project/features/auth/forgetpassword_screen.dart';
 import 'package:final_project/features/auth/login_screen.dart';
@@ -157,5 +159,12 @@ final GoRouter appRouter = GoRouter(
       path: '/confirmation',
       builder: (context, state) => const ConfirmationScreen(),
     ),
+  GoRoute(
+  path: '/pharmacy-details',
+  builder: (context, state) {
+    final pharmacy = state.extra as Pharmacy;
+    return PharmacyDetailsScreen(pharmacy: pharmacy);
+  },
+),
   ],
 );
