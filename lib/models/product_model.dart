@@ -63,7 +63,7 @@ class Product {
     if (!url.endsWith('.jpg') &&
         !url.endsWith('.png') &&
         !url.endsWith('.jpeg')) {
-      return 'https://images.unsplash.com/photo-1509042239860-f550ce710b93';
+      // return 'https://images.unsplash.com/photo-1509042239860-f550ce710b93';
     }
 
     return url;
