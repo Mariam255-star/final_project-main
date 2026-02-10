@@ -13,8 +13,8 @@ class CustomBottomNav extends StatelessWidget {
       currentIndex: currentIndex,
       backgroundColor: AppColor.primaryColor,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.white,
-      unselectedItemColor: Colors.white70,
+      // selectedItemColor: Colors.white,
+      // unselectedItemColor: Colors.white70,
       onTap: (index) {
         if (index == currentIndex) return;
 

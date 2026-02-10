@@ -12,7 +12,7 @@ class AddressScreen extends StatelessWidget {
       backgroundColor: AppColor.whiteColor,
 
       appBar: AppBar(
-        backgroundColor: AppColor.whiteColor,
+        backgroundColor: AppColor.primaryColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),

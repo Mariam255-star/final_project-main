@@ -70,7 +70,7 @@ class _MyProfilePageState extends State<MyProfilePage> {
       appBar: AppBar(
         title: const Text('My Profile'),
         centerTitle: true,
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColor.primaryColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),

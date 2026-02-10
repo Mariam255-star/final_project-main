@@ -24,7 +24,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
 
       /// 🟢 AppBar
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: AppColor.primaryColor,
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),

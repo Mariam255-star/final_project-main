@@ -54,7 +54,7 @@ class _ConfirmationScreenState extends State<ConfirmationScreen> {
     return Scaffold(
       backgroundColor: AppColor.whiteColor,
       appBar: AppBar(
-        backgroundColor: AppColor.whiteColor,
+        backgroundColor: AppColor.primaryColor,
         elevation: 0,
         leading: _isProcessing
             ? null
