@@ -14,16 +14,13 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  /// 🔹 Controllers
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  /// 🔹 States
   bool rememberMe = false;
   bool isLoading = false;
   bool obscurePassword = true;
 
-  /// 🔥 Login with Firebase
   Future<void> _login() async {
     final email = emailController.text.trim();
     final password = passwordController.text.trim();
@@ -48,10 +45,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (!mounted) return;
 
-      /// ✅ Load user's cart from Firebase
       await ProductCartService.initializeCartFromFirebase();
 
-      /// ✅ Success - Navigate to home
       context.go('/home');
     } on FirebaseAuthException catch (e) {
       _showMessage(e.message ?? "Login failed");
@@ -63,144 +58,164 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showMessage(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(text)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.whiteColor,
-      body: Stack(
+      body: Column(
         children: [
-          Image.asset(
-            "assets/images/Rectangle 9 top.png",
-            width: double.infinity,
+
+          /// 🔥 الجزء العلوي الثابت
+          SizedBox(
             height: 300,
-            fit: BoxFit.cover,
-          ),
-
-          SingleChildScrollView(
-            child: Column(
+            width: double.infinity,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                const SizedBox(height: 200),
-
-                CircleAvatar(
-                  radius: 48,
-                  child: Image.asset("assets/images/Group 3.png", width: 55),
-                ),
-
-                const SizedBox(height: 24),
-
-                Text(
-                  "Login",
-                  style: TextStyles.titleLarge(color: AppColor.secondaryColor),
-                ),
-
-                const SizedBox(height: 30),
-
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
-                  child: Column(
-                    children: [
-                      _textField("Email", controller: emailController),
-                      const SizedBox(height: 16),
-                      _textField(
-                        "Password",
-                        controller: passwordController,
-                        isPassword: true,
-                      ),
-
-                      const SizedBox(height: 12),
-
-                      Row(
-                        children: [
-                          SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: Checkbox(
-                              value: rememberMe,
-                              onChanged: (value) {
-                                setState(() => rememberMe = value ?? false);
-                              },
-                              activeColor: AppColor.primaryColor,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          Text("Remember Me", style: TextStyles.caption()),
-                          const Spacer(),
-                          InkWell(
-                            onTap: () {
-                              context.push('/forget-password');
-                            },
-                            child: Text(
-                              "Forgot Password?",
-                              style: TextStyles.caption(
-                                color: AppColor.primaryColor,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 22),
-
-                      /// 🔹 Login Button
-                      _mainButton(),
-
-                      const SizedBox(height: 24),
-
-                      Text("OR", style: TextStyles.caption()),
-
-                      const SizedBox(height: 18),
-
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
-                          _SocialIcon(
-                            icon: FontAwesomeIcons.google,
-                            color: Colors.red,
-                          ),
-                          SizedBox(width: 18),
-                          _SocialIcon(
-                            icon: FontAwesomeIcons.facebookF,
-                            color: Color(0xFF1877F2),
-                          ),
-                          SizedBox(width: 18),
-                          _SocialIcon(
-                            icon: FontAwesomeIcons.apple,
-                            color: Colors.black,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(height: 40),
-
                 Image.asset(
-                  "assets/images/Rectangle 12.png",
+                  "assets/images/Rectangle 9 top.png",
                   width: double.infinity,
-                  height: 140,
+                  height: 300,
                   fit: BoxFit.cover,
+                ),
+
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircleAvatar(
+                      radius: 48,
+                      child: Image.asset(
+                        "assets/images/Group 3.png",
+                        width: 55,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Login",
+                      style: TextStyles.titleLarge(
+                        color: AppColor.secondaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+
+                /// زر الرجوع
+                Positioned(
+                  top: 40,
+                  left: 16,
+                  child: GestureDetector(
+                    onTap: () => context.pop(),
+                    child: const CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.white,
+                      child: Icon(
+                        Icons.arrow_back_ios_new,
+                        size: 18,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
 
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: GestureDetector(
-                onTap: () => context.pop(),
-                child: const CircleAvatar(
-                  radius: 20,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.arrow_back_ios_new,
-                    size: 18,
-                    color: Colors.black,
-                  ),
+          /// 🔥 الجزء اللي بيعمل Scroll
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 30),
+
+                    _textField("Email", controller: emailController),
+                    const SizedBox(height: 16),
+
+                    _textField(
+                      "Password",
+                      controller: passwordController,
+                      isPassword: true,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: Checkbox(
+                            value: rememberMe,
+                            onChanged: (value) {
+                              setState(() => rememberMe = value ?? false);
+                            },
+                            activeColor: AppColor.primaryColor,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text("Remember Me", style: TextStyles.caption()),
+                        const Spacer(),
+                        InkWell(
+                          onTap: () {
+                            context.push('/forget-password');
+                          },
+                          child: Text(
+                            "Forgot Password?",
+                            style: TextStyles.caption(
+                              color: AppColor.primaryColor,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 22),
+
+                    _mainButton(),
+
+                    const SizedBox(height: 24),
+
+                    Text("OR", style: TextStyles.caption()),
+
+                    const SizedBox(height: 18),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        _SocialIcon(
+                          icon: FontAwesomeIcons.google,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 18),
+                        _SocialIcon(
+                          icon: FontAwesomeIcons.facebookF,
+                          color: Color(0xFF1877F2),
+                        ),
+                        SizedBox(width: 18),
+                        _SocialIcon(
+                          icon: FontAwesomeIcons.apple,
+                          color: Colors.black,
+                        ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    Image.asset(
+                      "assets/images/Rectangle 12.png",
+                      width: double.infinity,
+                      height: 140,
+                      fit: BoxFit.cover,
+                    ),
+
+                    const SizedBox(height: 30),
+                  ],
                 ),
               ),
             ),
@@ -209,8 +224,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
-
-  /// ================= Widgets =================
 
   Widget _textField(
     String hint, {
@@ -234,10 +247,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               )
             : null,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
-        ),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -268,13 +279,15 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.white,
                 strokeWidth: 2,
               )
-            : Text("Login In", style: TextStyles.button(color: Colors.white)),
+            : Text(
+                "Login In",
+                style: TextStyles.button(color: Colors.white),
+              ),
       ),
     );
   }
 }
 
-/// 🔹 Social Icon Widget
 class _SocialIcon extends StatelessWidget {
   final IconData icon;
   final Color color;
@@ -290,7 +303,9 @@ class _SocialIcon extends StatelessWidget {
         color: Colors.grey.shade100,
         shape: BoxShape.circle,
       ),
-      child: Center(child: FaIcon(icon, size: 20, color: color)),
+      child: Center(
+        child: FaIcon(icon, size: 20, color: color),
+      ),
     );
   }
 }
