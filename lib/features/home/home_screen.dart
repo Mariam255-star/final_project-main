@@ -1,5 +1,7 @@
 import 'package:final_project/core/constants/app_color.dart';
 import 'package:final_project/core/utils/text_style.dart';
+import 'package:final_project/models/product_model.dart';
+import 'package:final_project/services/product_services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -189,21 +191,50 @@ class HomePage extends StatelessWidget {
                 children: [
                   Text("Exclusive Offers", style: TextStyles.titleSmall()),
                   const SizedBox(height: 12),
-                  _offerItem(
-                    "Winter Wellness",
-                    "30% Off",
-                    'assets/medicines/bottles.png',
-                  ),
-                  const SizedBox(height: 12),
-                  _offerItem(
-                    "Winter Wellness",
-                    "30% Off",
-                    'assets/medicines/cream_1.png',
+                  FutureBuilder<List<Product>>(
+                    future: ProductService.getProducts(),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(
+                          child: CircularProgressIndicator(),
+                        );
+                      }
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Text(
+                            'Error: ${snapshot.error}',
+                            style: TextStyles.caption(color: Colors.red),
+                          ),
+                        );
+                      }
+
+                      final products = snapshot.data ?? [];
+                      if (products.isEmpty) {
+                        return Text(
+                          'No offers available',
+                          style: TextStyles.caption(color: Colors.grey),
+                        );
+                      }
+
+                      final offers = products.take(2).toList();
+
+                      return Column(
+                        children: [
+                          _offerItem(context, offers[0]),
+                          if (offers.length > 1) ...[
+                            const SizedBox(height: 12),
+                            _offerItem(context, offers[1]),
+                          ],
+                        ],
+                      );
+                    },
                   ),
                 ],
               ),
             ),
           ),
+        
         ],
       ),
     );
@@ -239,50 +270,81 @@ class HomePage extends StatelessWidget {
   }
 
   /// 🔹 Offer Item
-  Widget _offerItem(String title, String discount, String imagePath) {
-    return Container(
-      height: 90,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 60,
-            height: 60,
-            decoration: BoxDecoration(
-              color: AppColor.primaryColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Image.asset(imagePath, width: 36, height: 36),
-          ),
-          const SizedBox(width: 12),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(title, style: TextStyles.bodyLarge()),
-              Text(
-                discount,
-                style: TextStyles.body(color: AppColor.primaryColor),
+  Widget _offerItem(BuildContext context, Product product) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: () {
+        context.push(
+          '/product-details',
+          extra: product,
+        );
+      },
+      child: Container(
+        height: 90,
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                color: AppColor.primaryColor.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
               ),
-            ],
-          ),
-          const Spacer(),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: AppColor.primaryColor,
-              borderRadius: BorderRadius.circular(12),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  product.image,
+                  width: 36,
+                  height: 36,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.image,
+                    size: 32,
+                    color: Colors.grey,
+                  ),
+                ),
+              ),
             ),
-            child: Text(
-              "Shop now",
-              style: TextStyles.button(color: AppColor.whiteColor),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    product.name,
+                    style: TextStyles.bodyLarge(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '${product.price} EGP ⭐ ${product.rating.toStringAsFixed(1)}',
+                    style: TextStyles.body(color: AppColor.primaryColor),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+              decoration: BoxDecoration(
+                color: AppColor.primaryColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                "Shop now",
+                style: TextStyles.button(color: AppColor.whiteColor),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

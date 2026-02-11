@@ -58,77 +58,78 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showMessage(String text) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(text)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColor.whiteColor,
-      body: Column(
-        children: [
-
-          /// 🔥 الجزء العلوي الثابت
-          SizedBox(
-            height: 300,
-            width: double.infinity,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Image.asset(
-                  "assets/images/Rectangle 9 top.png",
-                  width: double.infinity,
-                  height: 300,
-                  fit: BoxFit.cover,
-                ),
-
-                Column(
-                  mainAxisSize: MainAxisSize.min,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Column(
+            children: [
+              /// 🔥 الجزء العلوي الثابت
+              SizedBox(
+                height: 300,
+                width: double.infinity,
+                child: Stack(
+                  alignment: Alignment.center,
                   children: [
-                    CircleAvatar(
-                      radius: 48,
-                      child: Image.asset(
-                        "assets/images/Group 3.png",
-                        width: 55,
-                      ),
+                    Image.asset(
+                      "assets/images/Rectangle 9 top.png",
+                      width: double.infinity,
+                      height: 300,
+                      fit: BoxFit.cover,
                     ),
-                    const SizedBox(height: 16),
-                    Text(
-                      "Login",
-                      style: TextStyles.titleLarge(
-                        color: AppColor.secondaryColor,
+
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 48,
+                          child: Image.asset(
+                            "assets/images/Group 3.png",
+                            width: 55,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          "Login",
+                          style: TextStyles.titleLarge(
+                            color: AppColor.secondaryColor,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    /// زر الرجوع
+                    Positioned(
+                      top: 40,
+                      left: 16,
+                      child: GestureDetector(
+                        onTap: () => context.pop(),
+                        child: const CircleAvatar(
+                          radius: 20,
+                          backgroundColor: Colors.white,
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            size: 18,
+                            color: Colors.black,
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
+              ),
 
-                /// زر الرجوع
-                Positioned(
-                  top: 40,
-                  left: 16,
-                  child: GestureDetector(
-                    onTap: () => context.pop(),
-                    child: const CircleAvatar(
-                      radius: 20,
-                      backgroundColor: Colors.white,
-                      child: Icon(
-                        Icons.arrow_back_ios_new,
-                        size: 18,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          /// 🔥 الجزء اللي بيعمل Scroll
-          Expanded(
-            child: SingleChildScrollView(
-              child: Padding(
+              /// 🔥 الجزء السفلي
+              Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Column(
                   children: [
@@ -205,22 +206,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       ],
                     ),
 
-                    const SizedBox(height: 40),
-
-                    Image.asset(
-                      "assets/images/Rectangle 12.png",
-                      width: double.infinity,
-                      height: 140,
-                      fit: BoxFit.cover,
-                    ),
-
                     const SizedBox(height: 30),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -247,8 +239,10 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
               )
             : null,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: BorderSide(color: Colors.grey.shade300),
@@ -279,10 +273,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 color: Colors.white,
                 strokeWidth: 2,
               )
-            : Text(
-                "Login In",
-                style: TextStyles.button(color: Colors.white),
-              ),
+            : Text("Login In", style: TextStyles.button(color: Colors.white)),
       ),
     );
   }
@@ -303,9 +294,7 @@ class _SocialIcon extends StatelessWidget {
         color: Colors.grey.shade100,
         shape: BoxShape.circle,
       ),
-      child: Center(
-        child: FaIcon(icon, size: 20, color: color),
-      ),
+      child: Center(child: FaIcon(icon, size: 20, color: color)),
     );
   }
 }

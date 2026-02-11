@@ -147,7 +147,7 @@ class PharmacyDetailsScreen extends StatelessWidget {
                           scrollDirection: Axis.horizontal,
                           itemCount: products.length,
                           itemBuilder: (context, index) =>
-                              _offerCard(products[index]),
+                              _offerCard(context, products[index]),
                         ),
                       );
                     },
@@ -197,7 +197,7 @@ class PharmacyDetailsScreen extends StatelessWidget {
                               childAspectRatio: 0.75,
                             ),
                         itemBuilder: (context, index) {
-                          return _productCard(products[index]);
+                          return _productCard(context, products[index]);
                         },
                       );
                     },
@@ -212,95 +212,111 @@ class PharmacyDetailsScreen extends StatelessWidget {
   }
 
   /// 🎯 Offer Card
-  Widget _offerCard(Product product) {
-    return Container(
-      width: 200,
-      margin: const EdgeInsets.only(right: 12),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: const Color(0xffE8F6F3),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  product.name,
-                  style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  "${product.price} EGP",
-                  style: TextStyles.caption(color: Colors.grey),
-                ),
-                const Spacer(),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
+  Widget _offerCard(BuildContext context, Product product) {
+    return GestureDetector(
+      onTap: () {
+        context.push(
+          '/product-details',
+          extra: product,
+        );
+      },
+      child: Container(
+        width: 200,
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: const Color(0xffE8F6F3),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  decoration: BoxDecoration(
-                    color: AppColor.primaryColor,
-                    borderRadius: BorderRadius.circular(20),
+                  const SizedBox(height: 4),
+                  Text(
+                    "${product.price} EGP",
+                    style: TextStyles.caption(color: Colors.grey),
                   ),
-                  child: Text(
-                    "Shop now",
-                    style: TextStyles.caption(color: Colors.white),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.primaryColor,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      "Shop now",
+                      style: TextStyles.caption(color: Colors.white),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Image.network(
-            product.image,
-            height: 60,
-            fit: BoxFit.contain,
-            errorBuilder: (context, error, stackTrace) =>
-                const Icon(Icons.image, size: 40),
-          ),
-        ],
+            Image.network(
+              product.image,
+              height: 60,
+              fit: BoxFit.contain,
+              errorBuilder: (context, error, stackTrace) =>
+                  const Icon(Icons.image, size: 40),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   /// 🧴 Product Card
-  Widget _productCard(Product product) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6)],
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            child: Image.network(
-              product.image,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.image, size: 50),
+  Widget _productCard(BuildContext context, Product product) {
+    return GestureDetector(
+      onTap: () {
+        context.push(
+          '/product-details',
+          extra: product,
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: AppColor.whiteColor,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6)],
+        ),
+        child: Column(
+          children: [
+            Expanded(
+              child: Image.network(
+                product.image,
+                fit: BoxFit.contain,
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.image, size: 50),
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            product.name,
-            style: TextStyles.body(),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Text(
-            "${product.price} EGP",
-            style: TextStyles.caption(color: AppColor.primaryColor),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              product.name,
+              style: TextStyles.body(),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "${product.price} EGP",
+              style: TextStyles.caption(color: AppColor.primaryColor),
+            ),
+          ],
+        ),
       ),
     );
   }
