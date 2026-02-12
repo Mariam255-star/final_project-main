@@ -15,8 +15,6 @@ class PharmacyDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColor.whiteColor,
-
-      /// 🟢 AppBar
       appBar: AppBar(
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
@@ -25,11 +23,11 @@ class PharmacyDetailsScreen extends StatelessWidget {
           onPressed: () => context.pop(),
         ),
       ),
-
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// 🔹 Header
             Container(
               width: double.infinity,
               height: 170,
@@ -40,19 +38,13 @@ class PharmacyDetailsScreen extends StatelessWidget {
                   bottomLeft: Radius.circular(30),
                   bottomRight: Radius.circular(25),
                 ),
-                boxShadow: const [
-                  BoxShadow(color: Colors.black12, blurRadius: 8),
-                ],
               ),
               child: Center(
                 child: Image.network(
                   pharmacy.image,
                   fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) => const Icon(
-                    Icons.local_pharmacy,
-                    size: 70,
-                    color: AppColor.primaryColor,
-                  ),
+                  errorBuilder: (context, error, stackTrace) =>
+                      const Icon(Icons.local_pharmacy, size: 70),
                 ),
               ),
             ),
@@ -64,35 +56,26 @@ class PharmacyDetailsScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  /// 🏥 Pharmacy Name
                   Text(
                     pharmacy.name,
                     style: TextStyles.titleMedium(
                       color: AppColor.secondaryColor,
                     ),
                   ),
-
                   const SizedBox(height: 4),
-
-                  /// 📝 Subtitle
                   Text(
-                    pharmacy.description ?? "Your Health Partner",
+                    pharmacy.description,
                     style: TextStyles.caption(color: Colors.grey),
                   ),
-
                   const SizedBox(height: 10),
 
-                  /// 🚚 Delivery Info
                   Row(
                     children: [
-                      const Icon(
-                        Icons.delivery_dining,
-                        size: 18,
-                        color: Colors.grey,
-                      ),
+                      const Icon(Icons.delivery_dining,
+                          size: 18, color: Colors.grey),
                       const SizedBox(width: 6),
                       Text(
-                        "Delivery: ${pharmacy.deliveryTime ?? '30 min'}",
+                        "Delivery: ${pharmacy.deliveryTime}",
                         style: TextStyles.caption(color: Colors.grey),
                       ),
                     ],
@@ -100,49 +83,30 @@ class PharmacyDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  /// 🎯 Exclusive Offers
+                  /// ================== OFFERS ==================
                   Text(
                     "Exclusive Offers",
-                    style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
+                    style: TextStyles.bodyLarge(
+                        color: AppColor.secondaryColor),
                   ),
-
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 12),
 
                   FutureBuilder<List<Product>>(
                     future: ProductService.getProducts(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
+                      if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
                         return const SizedBox(
-                          height: 120,
-                          child: Center(child: CircularProgressIndicator()),
-                        );
-                      }
-
-                      if (snapshot.hasError) {
-                        return SizedBox(
-                          height: 120,
+                          height: 160,
                           child: Center(
-                            child: Text("Error: ${snapshot.error}"),
-                          ),
+                              child: CircularProgressIndicator()),
                         );
                       }
 
                       final products = snapshot.data ?? [];
 
-                      if (products.isEmpty) {
-                        return SizedBox(
-                          height: 120,
-                          child: Center(
-                            child: Text(
-                              "No offers available",
-                              style: TextStyles.caption(color: Colors.grey),
-                            ),
-                          ),
-                        );
-                      }
-
                       return SizedBox(
-                        height: 120,
+                        height: 160, // 🔥 زودنا الارتفاع
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: products.length,
@@ -155,49 +119,40 @@ class PharmacyDetailsScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  /// 🧴 Products
+                  /// ================== PRODUCTS ==================
                   Text(
                     "Products",
-                    style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
+                    style: TextStyles.bodyLarge(
+                        color: AppColor.secondaryColor),
                   ),
-
                   const SizedBox(height: 10),
 
                   FutureBuilder<List<Product>>(
                     future: ProductService.getProducts(),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-
-                      if (snapshot.hasError) {
-                        return Center(child: Text("Error: ${snapshot.error}"));
+                      if (snapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return const Center(
+                            child: CircularProgressIndicator());
                       }
 
                       final products = snapshot.data ?? [];
 
-                      if (products.isEmpty) {
-                        return Center(
-                          child: Text(
-                            'No products available',
-                            style: TextStyles.body(color: Colors.grey),
-                          ),
-                        );
-                      }
-
                       return GridView.builder(
                         shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
+                        physics:
+                            const NeverScrollableScrollPhysics(),
                         itemCount: products.length,
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 2,
-                              crossAxisSpacing: 12,
-                              mainAxisSpacing: 12,
-                              childAspectRatio: 0.75,
-                            ),
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          childAspectRatio: 0.75,
+                        ),
                         itemBuilder: (context, index) {
-                          return _productCard(context, products[index]);
+                          return _productCard(
+                              context, products[index]);
                         },
                       );
                     },
@@ -211,64 +166,73 @@ class PharmacyDetailsScreen extends StatelessWidget {
     );
   }
 
-  /// 🎯 Offer Card
+  /// ================== OFFER CARD ==================
   Widget _offerCard(BuildContext context, Product product) {
     return GestureDetector(
       onTap: () {
-        context.push(
-          '/product-details',
-          extra: product,
-        );
+        context.push('/product-details', extra: product);
       },
       child: Container(
-        width: 200,
+        width: 220,
         margin: const EdgeInsets.only(right: 12),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: const Color(0xffE8F6F3),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
           children: [
+            /// Text Part
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                mainAxisAlignment:
+                    MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     product.name,
-                    style: TextStyles.bodyLarge(color: AppColor.secondaryColor),
+                    style: TextStyles.bodyLarge(
+                        color: AppColor.secondaryColor),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: 4),
                   Text(
                     "${product.price} EGP",
-                    style: TextStyles.caption(color: Colors.grey),
+                    style:
+                        TextStyles.caption(color: Colors.grey),
                   ),
-                  const Spacer(),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
+                        horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColor.primaryColor,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius:
+                          BorderRadius.circular(20),
                     ),
                     child: Text(
                       "Shop now",
-                      style: TextStyles.caption(color: Colors.white),
+                      style: TextStyles.caption(
+                          color: Colors.white),
                     ),
                   ),
                 ],
               ),
             ),
-            Image.network(
-              product.image,
-              height: 60,
-              fit: BoxFit.contain,
-              errorBuilder: (context, error, stackTrace) =>
-                  const Icon(Icons.image, size: 40),
+
+            const SizedBox(width: 8),
+
+            /// Image
+            SizedBox(
+              width: 70,
+              height: 70,
+              child: Image.network(
+                product.image,
+                fit: BoxFit.contain,
+                errorBuilder:
+                    (context, error, stackTrace) =>
+                        const Icon(Icons.image),
+              ),
             ),
           ],
         ),
@@ -276,21 +240,21 @@ class PharmacyDetailsScreen extends StatelessWidget {
     );
   }
 
-  /// 🧴 Product Card
-  Widget _productCard(BuildContext context, Product product) {
+  /// ================== PRODUCT CARD ==================
+  Widget _productCard(
+      BuildContext context, Product product) {
     return GestureDetector(
       onTap: () {
-        context.push(
-          '/product-details',
-          extra: product,
-        );
+        context.push('/product-details', extra: product);
       },
       child: Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: AppColor.whiteColor,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 6)],
+          boxShadow: const [
+            BoxShadow(color: Colors.black12, blurRadius: 6)
+          ],
         ),
         child: Column(
           children: [
@@ -298,8 +262,9 @@ class PharmacyDetailsScreen extends StatelessWidget {
               child: Image.network(
                 product.image,
                 fit: BoxFit.contain,
-                errorBuilder: (context, error, stackTrace) =>
-                    const Icon(Icons.image, size: 50),
+                errorBuilder:
+                    (context, error, stackTrace) =>
+                        const Icon(Icons.image),
               ),
             ),
             const SizedBox(height: 8),
@@ -313,7 +278,8 @@ class PharmacyDetailsScreen extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               "${product.price} EGP",
-              style: TextStyles.caption(color: AppColor.primaryColor),
+              style: TextStyles.caption(
+                  color: AppColor.primaryColor),
             ),
           ],
         ),
